@@ -20,6 +20,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   ticketUpdated(ticketId: string, status: string) {
-    this.server.emit('ticketUpdated', { ticketId, status });
+    this.server.emit('ticket:updated', { ticketId, status });
   }
 }

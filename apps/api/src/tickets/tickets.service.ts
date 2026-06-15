@@ -2,13 +2,16 @@ import { Inject, Injectable } from "@nestjs/common";
 import { InjectQueue } from "@nestjs/bullmq";
 import { Queue } from "bullmq";
 import { randomUUID } from "crypto";
+
 import { DbService } from "src/common/db.service";
+import { EventsGateway } from "src/gateway/events.gateway";
 
 @Injectable()
 export class TicketsService {
   constructor(
     @InjectQueue("triage") private triageQueue: Queue,
     private dbService: DbService,
+    private eventsGateway: EventsGateway,
   ) {}
 
   async create(input: { customerEmail: string; subject: string; body: string }) {
@@ -21,7 +24,8 @@ export class TicketsService {
       [ticketId, customerEmail, subject, body],
     );
     await this.triageQueue.add("triage", { ticketId, ...input });
-    
+    this.eventsGateway.ticketUpdated(ticketId, "new");
+
     return { ticketId, status: "new" };
   }
 }
