@@ -1,0 +1,49 @@
+# Local infrastructure for development.
+# Apps (web + api) run on the HOST via `pnpm dev` for fast hot-reload.
+# This file provides only the backing services.
+#
+#   pnpm infra:up      start everything below
+#   pnpm infra:logs    tail logs
+#   pnpm infra:reset   wipe volumes and re-run init.sql (fresh DB)
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: support
+      POSTGRES_PASSWORD: support
+      POSTGRES_DB: support_agent
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Auto-runs on first boot to create the pgvector extension + tables.
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U support -d support_agent"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Lightweight DB browser at http://localhost:8080
+  # System: PostgreSQL | Server: postgres | User/Pass: support | DB: support_agent
+  adminer:
+    image: adminer:4
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

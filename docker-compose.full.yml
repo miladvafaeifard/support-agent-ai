@@ -1,0 +1,30 @@
+# Prod-like run: builds and runs web + api as containers alongside infra.
+# Use this as a final local check before deploying to Azure:
+#   docker compose -f docker-compose.yml -f docker-compose.full.yml up --build
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://support:support@postgres:5432/support_agent
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      LLM_MODE: ${LLM_MODE:-mock}
+      WEB_ORIGIN: http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
