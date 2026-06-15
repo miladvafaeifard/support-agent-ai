@@ -8,7 +8,7 @@ import { DbService } from "src/common/db.service";
 export class TicketsService {
   constructor(
     @InjectQueue("triage") private triageQueue: Queue,
-    @Inject("DbService")  private dbService: DbService,
+    private dbService: DbService,
   ) {}
 
   async create(input: { customerEmail: string; subject: string; body: string }) {
