@@ -1,11 +1,13 @@
 import { Processor, WorkerHost, InjectQueue } from "@nestjs/bullmq";
 import { Job, Queue } from "bullmq";
 import { TriageService } from "./triage.service";
+import { EventsGateway } from "src/gateway/events.gateway";
 
 @Processor("triage")
 export class TriageProcessor extends WorkerHost {
   constructor(
     private triageService: TriageService,
+    private eventsGateway: EventsGateway,
     @InjectQueue("resolution") private resolutionQueue: Queue,
     @InjectQueue("escalation") private escalationQueue: Queue,
   ) {
@@ -14,7 +16,7 @@ export class TriageProcessor extends WorkerHost {
 
   async process(job: Job<{ ticketId: string; subject: string; body: string }>) {
     const result = await this.triageService.triage(job.data.subject, job.data.body);
-
+    this.eventsGateway.ticketUpdated(job.data.ticketId, "triaged");
     // TODO: persist TriageResult on the ticket row
 
     // Routing decision: angry or critical tickets skip the AI and go

@@ -23,9 +23,8 @@ export class TicketsService {
       "INSERT INTO tickets (id, customer_email, subject, body, status) VALUES ($1, $2, $3, $4, 'new')",
       [ticketId, customerEmail, subject, body],
     );
-    await this.triageQueue.add("triage", { ticketId, ...input });
     this.eventsGateway.ticketUpdated(ticketId, "new");
-
+    await this.triageQueue.add("triage", { ticketId, ...input });
     return { ticketId, status: "new" };
   }
 }
