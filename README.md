@@ -4,6 +4,8 @@ A learning project for AI-agentic workflows. An autonomous pipeline triages
 customer tickets, attempts AI resolution via RAG, escalates to humans when
 needed, and learns from every resolution.
 
+![alt text](assets/image.png)
+
 ## Stack
 
 - **Frontend:** Next.js 15 (App Router) — `apps/web`
