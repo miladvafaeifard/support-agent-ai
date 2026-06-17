@@ -16,6 +16,22 @@ export class DbService implements OnModuleDestroy {
     return this.pool.query<T>(text, params as never);
   }
 
+  async similaritySearch(
+    embeddings: number[],
+    topK: number,
+  ): Promise<{ id: string; content: string }[]> {
+    const vector = `[${embeddings.join(",")}]`;
+    const result = await this.query<{ id: string; content: string }>(
+      `
+      SELECT id, content FROM knowledge_chunks
+      ORDER BY embedding <=> $1::vector
+      LIMIT $2
+    `,
+      [vector, topK],
+    );
+    return result.rows;
+  }
+
   async onModuleDestroy() {
     await this.pool.end();
   }

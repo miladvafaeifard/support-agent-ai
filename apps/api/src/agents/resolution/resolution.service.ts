@@ -1,10 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { ResolutionResult } from "@support-agent/shared";
 import { LlmService } from "../../common/llm.service";
+import { DbService } from "src/common/db.service";
 
 @Injectable()
 export class ResolutionService {
-  constructor(private llm: LlmService) {}
+  constructor(private llm: LlmService, private db: DbService) {}
 
   /**
    * RAG flow:
@@ -13,9 +14,8 @@ export class ResolutionService {
    * 3. generate an answer grounded in those chunks, with self-assessed confidence
    */
   async resolve(question: string): Promise<ResolutionResult> {
-    // TODO (week 4): const vector = await this.llm.embed(question);
-    // TODO (week 4): const chunks = await this.kbRepo.similaritySearch(vector, 5);
-    const chunks: { id: string; text: string }[] = [];
+    const vector = await this.llm.embed(question);
+    const chunks = await this.db.similaritySearch(vector, 5);
 
     return this.llm.completeStructured({
       schema: ResolutionResult,
@@ -23,7 +23,7 @@ export class ResolutionService {
 provided knowledge-base context. If the context is insufficient, say so and
 set confidence low. Respond ONLY with JSON:
 { "answer": "...", "confidence": <0..1>, "sourcesUsed": [...ids], "reasoning": "..." }`,
-      user: `Context:\n${chunks.map(c => `[${c.id}] ${c.text}`).join("\n") || "(no context available)"}\n\nQuestion:\n${question}`,
+      user: `Context:\n${chunks.map(c => `[${c.id}] ${c.content}`).join("\n") || "(no context available)"}\n\nQuestion:\n${question}`,
       // With an empty KB locally, confidence is low on purpose so you can see
       // the escalation path fire. Seed the KB (week 4) to watch this flip.
       mock: {
