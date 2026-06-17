@@ -11,6 +11,7 @@ import { EscalationService } from "./escalation/escalation.service";
 import { LearningProcessor } from "./learning/learning.processor";
 import { LearningService } from "./learning/learning.service";
 import { GatewayModule } from "src/gateway/gateway.module";
+import { CommonModule } from "src/common/common.module";
 
 /**
  * The agentic pipeline. Each agent is a BullMQ queue + processor pair:
@@ -40,6 +41,7 @@ const queueNames = Object.values(QUEUES);
       ...queueNames.map((name) => ({ name, adapter: BullMQAdapter })),
     ),
     GatewayModule,
+    CommonModule,
   ],
   providers: [
     TriageService, TriageProcessor,
