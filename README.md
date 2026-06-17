@@ -38,6 +38,6 @@ pnpm dev                    # starts web (:3000) and api (:3001)
 
 - [x] Week 1–2: Monorepo scaffold, infra, ticket intake
 - [x] Week 3: Triage Agent — persist results, wire websocket updates
-- [ ] Week 4: Resolution Agent — pgvector schema, embedding pipeline, RAG
+- [x] Week 4: Resolution Agent — pgvector schema, embedding pipeline, RAG
 - [ ] Week 5: Escalation — human dashboard, queue assignment, draft review
 - [ ] Week 6: Learning loop + Azure deploy via GitHub Actions
