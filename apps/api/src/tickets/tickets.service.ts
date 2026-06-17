@@ -38,4 +38,13 @@ export class TicketsService {
     return result.rows;
   }
 
+  async get(id: string) {
+    const result = await this.dbService.query(
+      `SELECT * FROM tickets
+        WHERE id = $1`,
+      [id],
+    );
+    return result.rows[0] ?? null;
+  }
+
 }

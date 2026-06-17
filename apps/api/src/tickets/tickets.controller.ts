@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Query, Get } from "@nestjs/common";
+import { Body, Controller, Post, Query, Get, Param } from "@nestjs/common";
 import { TicketsService } from "./tickets.service";
 
 @Controller("tickets")
@@ -13,5 +13,10 @@ export class TicketsController {
   @Get()
   list(@Query("status") status?: string) {
     return this.tickets.list(status);
+  }
+
+  @Get(":id")
+  get(@Param("id") id: string) {
+    return this.tickets.get(id);
   }
 }
