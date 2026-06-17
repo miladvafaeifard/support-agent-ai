@@ -27,4 +27,15 @@ export class TicketsService {
     await this.triageQueue.add("triage", { ticketId, ...input });
     return { ticketId, status: "new" };
   }
+
+  async list(status?: string) {
+    const result = await this.dbService.query(
+      `SELECT id, customer_email, subject, summary, urgency, category, status, updated_at FROM tickets
+        WHERE ($1::text IS NULL OR status = $1)
+        ORDER BY updated_at DESC`,
+      [status ?? null],
+    );
+    return result.rows;
+  }
+
 }
